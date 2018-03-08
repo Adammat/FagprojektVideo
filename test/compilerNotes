@@ -1,0 +1,19 @@
+(General installation, might be needed before any other apt-get, sudo's can be ignored if root user):
+sudo apt-get update
+
+Install v4l-utils (check webcam):
+sudo apt-get install v4l-utils
+Check webcam settings (after install):
+v4l2-ctl --all
+
+Install gstreamer and dev:
+sudo apt-get install gstreamer1.0* && libgstreamer1.0*
+( https://gstreamer.freedesktop.org/documentation/installing/on-linux.html )
+
+
+Compiling gst2.c (use `, not ´, ' or ".. Also don't forget the hyphen):
+gcc gst2.c -o webcamTest `pkg-config --cflags --libs gstreamer-1.0`
+
+Run it (assumes a camera connected with YUY2 (YCbCr 422) output):
+./webcamTest
+(There are some bugs, didn't get the videoscale to work correctly yet and some errors I didn't find yet...)
