@@ -26,9 +26,10 @@ int main(int argc, char *argv[]){
 	//Create empty pipeline
 	pipeline = gst_pipeline_new("test-pipe");
 
-	if(!pipeline || !source || !convert || !scale || !sink){
+	if(!pipeline || !source || !filter || !convert || !scale || !sink){
 		g_printerr("Not all elements could be created, failed:\n");
 		if(!pipeline)g_printerr("Pipeline..\n");
+		if(!filter)g_printerr("Filter..\n");
 		if(!source)g_printerr("Source..\n");
 		if(!convert)g_printerr("Convert..\n.");
 		if(!scale)g_printerr("Scale..\n");
@@ -37,8 +38,8 @@ int main(int argc, char *argv[]){
 	}
 	
 	//Build pipeline
-	gst_bin_add_many(GST_BIN(pipeline),source,convert,scale,sink,NULL);
-	if(gst_element_link_many(source,convert,scale,sink,NULL) != TRUE){
+	gst_bin_add_many(GST_BIN(pipeline),source,filter,convert,scale,sink,NULL);
+	if(gst_element_link_many(source,filter,convert,scale,sink,NULL) != TRUE){
 		g_printerr("Elements could not be linked.\n");
 		gst_object_unref(pipeline);
 		return -1;
