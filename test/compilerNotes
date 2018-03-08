@@ -16,4 +16,4 @@ gcc gst2.c -o webcamTest `pkg-config --cflags --libs gstreamer-1.0`
 
 Run it (assumes a camera connected with YUY2 (YCbCr 422) output):
 ./webcamTest
-(There are some bugs, didn't get the videoscale to work correctly yet and some errors I didn't find yet...)
+(There are some bugs/some errors I didn't find yet... But it does give me a window with webcam output)
