@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
 	source = gst_element_factory_make("v4l2src","source");
 	format = gst_caps_from_string("video/x-raw,format=YUY2,width=640,height=480,framerate=30/1");
 	convert = gst_element_factory_make("videoconvert","convert");
-	scale = gst_element_factory_make("videoscale","scale"),
+	scale = gst_element_factory_make("videoscale","scale");
 	sink = gst_element_factory_make("ximagesink","sink");
 
 	filter = gst_element_factory_make("capsfilter","filter");
