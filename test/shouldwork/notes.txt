@@ -1,0 +1,4 @@
+webcamStream.c should work, but with high latency
+webcamStreamZero.c should also work, but with low latency (tune is set by a flag, not the string "zerolatency" - gst-inspect-1.0 h264enc)
+-- Remember to set target ip
+-- Tested only on localhost so far and with reciever as terminal script
