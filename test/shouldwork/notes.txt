@@ -1,4 +1,12 @@
 webcamStream.c should work, but with high latency
 webcamStreamZero.c should also work, but with low latency (tune is set by a flag, not the string "zerolatency" - gst-inspect-1.0 h264enc)
+-- Both are same, just one line commented out (tune=zerolatency, 0x00000004)
 -- Remember to set target ip
 -- Tested only on localhost so far and with reciever as terminal script
+
+Sender: (equivalent to webcamStreamZero.c)
+gst-launch-1.0 -v v4l2src device=/dev/video0 ! video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! videoconvert ! x264enc tune=zerolatency ! h264parse ! rtph264pay ! udpsink host=10.0.0.40 port=5000
+
+
+Reciever:
+gst-launch-1.0 -v udpsrc port=5000 ! "application/x-rtp,media(string)video,clock-rate=(int)90000,encoding-name=(string)H264,packetization-mode=(string)1" ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! ximagesink
