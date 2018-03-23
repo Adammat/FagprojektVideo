@@ -1,6 +1,6 @@
 webcamStream.c should work, but with high latency
 webcamStreamZero.c should also work, but with low latency (tune is set by a flag, not the string "zerolatency" - gst-inspect-1.0 h264enc)
--- Both are same, just one line commented out (tune=zerolatency, 0x00000004)
+-- Both are same, just one line commented out (tune=zerolatency, 0x00000004) - Apparently "4" is enough as flag, yay
 -- Remember to set target ip
 -- Tested only on localhost so far and with reciever as terminal script
 
@@ -15,3 +15,6 @@ gst-launch-1.0 -v udpsrc port=5000 ! "application/x-rtp,media=(string)video,cloc
 
 streamWin.c is same as webcamStreamZero, just setup to stream to my Opi win when at home.. I uploaded again because this was working
 reciever.c recieved fine on OPI win, but only using noip routing (probably "clogged" the port, happens with my SSH also).
+
+
+streamWinTee.c is tee'd to show live output (not x264 compressed) while streaming
