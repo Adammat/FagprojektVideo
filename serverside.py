@@ -1,6 +1,6 @@
-import socketserver
+import SocketServer
 
-class MyTCPHandler(socketserver.BaseRequestHandler):
+class MyTCPHandler(SocketServer.BaseRequestHandler):
 
     
     
@@ -24,13 +24,16 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         try:
             if self.data[0:5] == "{VCL:" and 0 < int(self.data[5:-1]) < 4 and self.data[-1:] == "}" :
                 VCL = int(self.data[5:-1])
+                # TODO Implement RES changing funciton
                 self.request.sendall(("{OK:VCL=" + str(VCL) + "}").encode())
             elif self.data[0:5] == "{FPS:" and 0 < int(self.data[5:-1]) < 61 and self.data[-1:] == "}" :
                 FPS = int(self.data[5:-1])
+                # TODO Implement RES changing funciton
                 self.request.sendall(("{OK:FPS=" + str(FPS) + "}").encode())            
             elif self.data[0:5] == "{RES:" and (int(self.data[5:-1]) in {480, 720, 1080}) and self.data[-1:] == "}" :
                 RES = int(self.data[5:-1])
-                self.request.sendall(("{OK:FPS=" + str(RES) + "}").encode())
+                # TODO Implement RES changing funciton
+                self.request.sendall(("{OK:RES=" + str(RES) + "}").encode())
             elif self.data == "{REQ:FPS}":
                 self.request.sendall(("{OK:FPS=" + str(FPS) + "}").encode())
             elif self.data == "{REQ:VCL}":
@@ -63,7 +66,7 @@ if __name__ == "__main__":
     VCL = 1
     RES = 720
     # Create the server, binding to localhost on port 9999
-    server = socketserver.TCPServer((HOST, PORT), MyTCPHandler)
+    server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
 
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
