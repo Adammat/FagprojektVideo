@@ -1,0 +1,121 @@
+int[] compress(int channel[], int wid, int hei, int blockSize, int values){
+  int elements = wid*hei;
+  int blockElems = blockSize*blockSize;
+  int blocks = elements/blockElems;
+  
+  int blockWidth = blocks/(wid/blockSize);
+  int blockHeight = blocks/blockWidth;
+  
+  int returner[] = new int[elements];
+  int qdct[] = channel.clone();
+  
+  for(int i=0;i<blockHeight;i++){
+    int ystart = i*blockSize;
+    for(int j=0;j<blockWidth;j++){
+      int xstart = j*blockSize;
+      for(int k=0;k<blockSize;k++){
+        for(int h=0; h<blockSize; h++){
+          returner[k+(blockSize*h)+((j+(blockWidth*i))*blockElems)]=channel[((ystart+h)*(elements/wid))+(xstart+k)]-(values/2);
+        }
+      }
+      // DCT, Quantize, ziggy?
+      for(int h=0;h<blockElems;h++){
+        int u=h%blockSize;
+        int v=floor(h/blockSize);
+        float Cu = 1;
+        float Cv = 1;
+        if(u==0){
+          Cu = 1/sqrt(2);
+        }
+        if(v==0){
+          Cv = 1/sqrt(2);
+        }
+        float multip = (2*Cu*Cv)/sqrt(blockElems);
+        float summy = 0;
+        for(int y=0;y<blockSize;y++){
+          for(int x=0;x<blockSize;x++){
+            //println(i+" "+j+" "+x+" "+y);
+            summy+=cos((((2*x)+1)*(u*PI))/(2*blockSize))*cos((((2*y)+1)*(v*PI))/(2*blockSize))*returner[((j+(i*blockWidth))*64)+x+(y*8)];
+          }
+        }
+        int compy = round(fiftyQuant[h]*comp);
+        if(compy>values-1){compy=values-1;}
+        if(compy<0){compy=0;};
+        // (j+(i*blockwidth)) = block x, h index in that block
+        //qdct[((j+(i*blockWidth))*blockElems)+h]=round((multip*summy)/compy);
+        
+        //qdct[((((j+(i*blockWidth))*blockElems))+(zigga[h]))]=round((multip*summy)/compy);
+        //((i*(blocksize*blocksize))+(zigga[j]))
+        
+        
+        qdct[(((j+(i*blockWidth))*blockElems))+(ziggb[h])]=round((multip*summy)/compy);
+        /*if(round((multip*summy)/compy)<0){
+          qdct[(((j+(i*blockWidth))*blockElems))+(ziggb[h])]=0;
+        }else{
+          qdct[(((j+(i*blockWidth))*blockElems))+(ziggb[h])]=round((multip*summy)/compy);
+        }*/
+        
+      }
+    }
+  }
+  return qdct;
+}
+
+
+
+
+
+int[] uncompress(int channel[], int wid, int hei, int blockSize, int values){
+  int elements = wid*hei;
+  int blockElems = blockSize*blockSize;
+  int blocks = elements/blockElems;
+  
+  int blockWidth = blocks/(wid/blockSize);
+  int blockHeight = blocks/blockWidth;
+  
+  int returner[] = new int[elements];
+  int qdct[] = channel.clone();
+  
+  for(int b=0;b<blocks;b++){
+    for(int j=0;j<blockElems;j++){
+      //returner[(b*(blockElems))+(zigga[j])] = channel[(b*(blockElems))+j];
+      int compy = round(fiftyQuant[zigga[j]]*comp);
+      if(compy>values-1){compy=values-1;}
+      if(compy<0){compy=0;};
+      returner[(b*(blockElems))+(zigga[j])] = round(channel[(b*(blockElems))+j]*compy);
+      //turny[i]=round(veccy[i]*(fiftyQuant[i%(blocksize*blocksize)])*comp);
+    }
+
+    for(int j=0;j<blockElems;j++){
+      int x=j%blockSize;
+      int y=floor(j/blockSize);
+      
+      float multip = (2)/sqrt(blockElems);
+      // x=i, y=j...
+      float summy = 0;
+      for(int v=0;v<blockSize;v++){
+        for(int u=0;u<blockSize;u++){
+          float Cu = 1;
+          float Cv = 1;
+          if(u==0){
+            Cu = 1/sqrt(2);
+          }
+          if(v==0){
+            Cv = 1/sqrt(2);
+          }
+          //println(i+" "+j+" "+x+" "+y);
+          summy+=Cu*Cv*cos((((2*x)+1)*(u*PI))/(2*blockSize))*cos((((2*y)+1)*(v*PI))/(2*blockSize))*returner[(b*64)+u+(v*8)];
+        }
+      }
+      //block x
+      //qdct[(b*blockElems)+j]=round(summy*multip)+(values/2);
+      int bx = b%blockWidth;
+      int by = floor(b/blockWidth);
+      qdct[(by*blockSize*wid)+(bx*blockSize)+(y*wid)+x]= round(summy*multip)+(values/2);
+      
+    }
+    
+  }
+  
+  return qdct;
+}
