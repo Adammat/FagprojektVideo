@@ -66,7 +66,7 @@ int * encode(int * input, int height, int width, int block_size, int bit_depth, 
 				for(int l=0;l<block_size;l++){
 					buffer_index = l+(block_size*k)+((j+(block_width*i))*pixels_block);
 					input_index = (y_offset+k)*(pixels/width)+(x_offset+l);
-					buffer[buffer_index]=input[input_index];
+					buffer[buffer_index]=input[input_index]-(bit_value/2);
 				}
 			}
 			for(int l=0;l<pixels_block;l++){
