@@ -63,50 +63,29 @@ int * encode(int * input, int height, int width, int block_size, int bit_depth, 
 		int y_offset = i*block_size;
 		for(int j=0;j<block_width;j++){
 			int x_offset = j*block_size;
-			for(int k=0;k<block_size;k++){
-				for(int l=0;l<block_size;l++){
-					buffer_index = l+(block_size*k)+((j+(block_width*i))*pixels_block);
-					input_index = (y_offset+k)*(width)+(x_offset+l);
-					//int remove_value = (int)bit_value/2;
-					buffer[buffer_index]=input[input_index]-(bit_value/2);
-					if(i==0&&j==0){
-						printf("buffer[%d] = %d \n", (l+8*k), buffer[buffer_index]);
+			for(int v=0;v<block_size;v++){
+				for(int u=0;u<block_size;u++){
+					float Cu = 1.0;
+					float Cv = 1.0;
+					if(u==0){
+						Cu = 1.0/sqrt(2);
 					}
-				}
-			}
-			for(int l=0;l<pixels_block;l++){
-				int u = l % block_size;
-				int v = (int) floor(l/block_size);
-				float Cu = 1.0;
-				float Cv = 1.0;
-				if(u==0){
-					Cu = 1.0/sqrt(2);
-				}
-				if(v==0){
-					Cv = 1.0/sqrt(2);
-				}
-				float multiplier = (2.0*Cu*Cv)/sqrt(pixels_block);
-				float sum =0.0;
-				for(int y=0;y<block_size;y++){
-					for(int x=0;x<block_size;x++){
-						sum= sum+(float) cos((((2.0*x)+1.0)*(u*M_PI))/(2.0*block_size))*cos((((2.0*y)+1.0)*(v*M_PI))/(2.0*block_size))*buffer[((j+(i*block_width))*64)+x+(y*8)];
-						if(i==0&&j==0&&l==0){
-							printf("Sum(x%dy%d):%.5f\n",x,y,sum);
+					if(v==0){
+						Cv = 1.0/sqrt(2);
+					}
+					float multiplier = (2.0*Cu*Cv)/sqrt(pixels_block);
+					float sum =0.0;
+					for(int y=0;y<block_size;y++){
+						for(int x=0;x<block_size;x++){
+							sum= sum+(float) cos((((2.0*x)+1.0)*(u*M_PI))/(2.0*block_size))*cos((((2.0*y)+1.0)*(v*M_PI))/(2.0*block_size))*(input[((y_offset+y)*wid)+(x_offset+x)]-(bit_value/2));
 						}
 					}
+					int compression_product = (int) round(fiftyQuant[u+(blockSize*v)]*ratio);
+					output[(((j+(i*block_width))*pixels_block))+(backward_DCT_path[u+(blockSize*v)])] =  round((multiplier*sum)/compression_product);
 				}
-				int compression_product = (int) round(fiftyQuant[l]*ratio);
-				//if(compression_product>bit_value-1){compression_product=bit_value-1;}
-				//if(compression_product<0){compression_product=0;}
-				output[(((j+(i*block_width))*pixels_block))+(backward_DCT_path[l])] =  round((multiplier*sum)/compression_product);
-				if(i==0 && j==0 && l==0){
-					printf("%d - %d\n", compression_product, (int) round(((multiplier*sum)/compression_product)));
-					printf("index out:%d\n",(((j+(i*block_width))*pixels_block))+(backward_DCT_path[l]));
-				 }
 			}
 		}
 	}
-	printf("Output0: %d ",output[0]);
 	return (output);
 }
 int main( int argc, const char* argv[] )
