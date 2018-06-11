@@ -22,7 +22,6 @@ class RemoteClient(asyncore.dispatcher):
 
     def say(self, message):
         self.outbox.append(message)
-        print("Appended message: {}".format(message))
 
     def handle_read(self):
         recv_message = self.recv(MAX_MESSAGE_LENGTH)
@@ -132,14 +131,14 @@ class RemoteClient(asyncore.dispatcher):
         message = self.outbox.popleft()
         if len(message) > MAX_MESSAGE_LENGTH:
             raise ValueError('Message too long')
-        print("Sending message: {}".format(message)) 
+        print("Sending message: {}, to {}".format(message, self.getpeername())) 
         self.sendall(message)
 
 class Host(asyncore.dispatcher):
 
     log = logging.getLogger('Host')
 
-    def __init__(self, address=('localhost', 9999)):
+    def __init__(self, address):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
@@ -164,13 +163,12 @@ class Host(asyncore.dispatcher):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
-    SOCKADDR = "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket"
+    #SOCKADDR = "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket"
     #Initial values 
-    FPS = 60
-    VCL = 1
-    RES = 720
+    FPS, VCL, RES = 60,1,720
+    HOST, PORT = 'localhost', 9999
 
-    # Create the socket (AF_UNIX is a local socket. SEQPACKET is two way communication)
+    '''# Create the socket (AF_UNIX is a local socket. SEQPACKET is two way communication)
     localSock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
 
     try:
@@ -178,10 +176,10 @@ if __name__ == "__main__":
         localSock.connect(SOCKADDR)
     except:
         print("Couldn't connect to local socket: {}".format(SOCKADDR))
-        raise
+        raise'''
 
     logging.info('Creating host')
-    host = Host()
+    host = Host((HOST,PORT))
     logging.info('Host Socketname: %s', host.getsockname())
     '''logging.info('Creating clients')
     alice = Client(('localhost', 9999), 'Alice')

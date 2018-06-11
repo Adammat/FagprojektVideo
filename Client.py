@@ -4,6 +4,9 @@ import os
 import asyncore
 import collections
 import logging
+import time
+
+MAX_MESSAGE_LENGTH = 1024
 
 '''
 HOST, PORT = "localhost", 9999
@@ -46,6 +49,7 @@ class Client(asyncore.dispatcher):
         message = self.outbox.popleft()
         if len(message) > MAX_MESSAGE_LENGTH:
             raise ValueError('Message too long')
+        self.log.info('Sending message: %s, Time: %f', message, time.time())
         self.send(message)
 
     def handle_read(self):
@@ -57,6 +61,7 @@ if __name__ == '__main__':
     logging.info('Creating clients')
     alice = Client(('localhost', 9999), 'Alice')
     bob = Client(('localhost', 9999), 'Bob')
-    alice.say('{REQ:FPS}')
-    bob.say('{FPS=20}')
-    alice.say('{REQ:FPS}')
+    bob.say('{REQ:FPS}')
+    alice.say('{FPS:20}')
+    bob.say('{REQ:VCL}')
+    asyncore.loop()

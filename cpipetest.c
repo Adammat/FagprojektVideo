@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #define SOCKET_NAME "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket"
-#define BUFFER_SIZE 2
+#define BUFFER_SIZE 12
 
 
 
@@ -92,11 +92,6 @@ main(int argc, char *argv[])
 
 			buffer[BUFFER_SIZE - 1] = 0;
 
-			if (!strncmp(buffer, "", BUFFER_SIZE)) {
-				printf("Breaking\n");
-				fflush(stdout);
-				break;
-			}
 
 			printf("Recived data: %s\n", buffer);
 			fflush(stdout);
