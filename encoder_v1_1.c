@@ -77,11 +77,11 @@ int * encode(int * input, int height, int width, int block_size, int bit_depth, 
 					float sum =0.0;
 					for(int y=0;y<block_size;y++){
 						for(int x=0;x<block_size;x++){
-							sum= sum+(float) cos((((2.0*x)+1.0)*(u*M_PI))/(2.0*block_size))*cos((((2.0*y)+1.0)*(v*M_PI))/(2.0*block_size))*(input[((y_offset+y)*wid)+(x_offset+x)]-(bit_value/2));
+							sum= sum+(float) cos((((2.0*x)+1.0)*(u*M_PI))/(2.0*block_size))*cos((((2.0*y)+1.0)*(v*M_PI))/(2.0*block_size))*(input[((y_offset+y)*width)+(x_offset+x)]-(bit_value/2));
 						}
 					}
-					int compression_product = (int) round(fiftyQuant[u+(blockSize*v)]*ratio);
-					output[(((j+(i*block_width))*pixels_block))+(backward_DCT_path[u+(blockSize*v)])] =  round((multiplier*sum)/compression_product);
+					int compression_product = (int) round(fiftyQuant[u+(block_size*v)]*ratio);
+					output[(((j+(i*block_width))*pixels_block))+(backward_DCT_path[u+(block_size*v)])] =  round((multiplier*sum)/compression_product);
 				}
 			}
 		}
