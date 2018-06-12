@@ -22,16 +22,7 @@ int fiftyQuant[64] = {16, 11, 10, 16, 24, 40, 51, 61,
                     49, 64, 78, 87, 103,121,120,101,
                     72, 92, 95, 98, 112,100,103,99};
 
-
-
-
-
-
-
 int * encode(int * input, int height, int width, int block_size, int bit_depth, float ratio){
-
-
-
 	// Calculate the values each pixel can assume
 	int bit_value = (int) pow(2,bit_depth);
 	// Total pixels in image
@@ -42,7 +33,6 @@ int * encode(int * input, int height, int width, int block_size, int bit_depth, 
 	int blocks = pixels/pixels_block;
 	// Width of blocks
 	int block_width =(int) width/block_size;
-
 	//Height of blocks
 	int block_height = (int) blocks/block_width;
 	//Allocate memory for buffer and output
@@ -57,30 +47,38 @@ int * encode(int * input, int height, int width, int block_size, int bit_depth, 
 	Two first nestings handle each block, and following handles
 	each pixel in every block
 	*/
+	float 1overConst=0.7071067811865475;
 	int buffer_index=0;
 	int input_index=0;
+	float multiplier;
+	float Cu;
+	float Cv;
+	float sum;
+	int y_offset;
+	int x_offset;
+	int compression_product;
 	for(int i=0;i<block_height;i++){
-		int y_offset = i*block_size;
+		y_offset = i*block_size;
 		for(int j=0;j<block_width;j++){
-			int x_offset = j*block_size;
+			x_offset = j*block_size;
 			for(int v=0;v<block_size;v++){
 				for(int u=0;u<block_size;u++){
-					float Cu = 1.0;
-					float Cv = 1.0;
+					Cu = 1.0;
+					Cv = 1.0;
 					if(u==0){
-						Cu = 1.0/sqrt(2);
+						Cu = 1overConst;
 					}
 					if(v==0){
-						Cv = 1.0/sqrt(2);
+						Cv = 1overConst;
 					}
-					float multiplier = (2.0*Cu*Cv)/sqrt(pixels_block);
-					float sum =0.0;
+					multiplier = (2.0*Cu*Cv)/sqrt(pixels_block);
+					sum = 0.0;
 					for(int y=0;y<block_size;y++){
 						for(int x=0;x<block_size;x++){
 							sum= sum+(float) cos((((2.0*x)+1.0)*(u*M_PI))/(2.0*block_size))*cos((((2.0*y)+1.0)*(v*M_PI))/(2.0*block_size))*(input[((y_offset+y)*width)+(x_offset+x)]-(bit_value/2));
 						}
 					}
-					int compression_product = (int) round(fiftyQuant[u+(block_size*v)]*ratio);
+					compression_product = (int) round(fiftyQuant[u+(block_size*v)]*ratio);
 					output[(((j+(i*block_width))*pixels_block))+(backward_DCT_path[u+(block_size*v)])] =  round((multiplier*sum)/compression_product);
 				}
 			}
