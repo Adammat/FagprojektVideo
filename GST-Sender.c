@@ -36,7 +36,7 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data)
 int main (int argc, char *argv[]) {
   GMainLoop *loop;
 
-  GstElement *pipeline, *source, *demuxer, *decoder, *conv, *sink;
+  GstElement *pipeline, *source, *vídeox, *converter, *encoder,*payLoader, *sink;
   GstBus *bus;
   guint bus_watch_id;
 
@@ -48,13 +48,13 @@ int main (int argc, char *argv[]) {
   /* Create gstreamer elements */
   pipeline =  gst_pipeline_new         ("videoStreamer-player");
   source   =  gst_element_factory_make ("videotestsrc",       "source");
-  video-x =   gst_element_factory_make("video/x-raw",         "video-x")
+  vídeox =   gst_element_factory_make("video/x-raw",         "vídeox")
   converter = gst_element_factory_make ("videoconvert",       "converter");
   encoder =   gst_element_factory_make ("jpegenc",            "encoder");
   payLoader = gst_element_factory_make ("rtpjpegpay",         "payLoader")
   sink     =  gst_element_factory_make ("udpsink",            "sink");
 
-  if (!pipeline || !source || !video-x || !converter || !encoder || !payLoader || !sink) {
+  if (!pipeline || !source || !vídeox || !converter || !encoder || !payLoader || !sink) {
     g_printerr ("One or more element(s) could not be created. Exiting.\n");
     return -1;
   }
@@ -63,7 +63,7 @@ int main (int argc, char *argv[]) {
 
   /* we set the input filename to the source element */
   //g_object_set (G_OBJECT (source), "location", argv[1], NULL);
-  g_object_set (G_OBJECT (video-x), "width",  argv[1], "height", argv[2], NULL);
+  g_object_set (G_OBJECT (videox), "width",  argv[1], "height", argv[2], NULL);
   g_object_set (G_OBJECT (encoder), "quality", argv[3], NULL);
   g_object_set (G_OBJECT (sink), "host", argv[4], "port", argv[5], NULL);
 
@@ -73,13 +73,13 @@ int main (int argc, char *argv[]) {
   gst_object_unref (bus);
 
   /* we add all elements into the pipeline */
-  gst_bin_add_many (GST_BIN (pipeline), source, video-x, converter, encoder, payLoader, sink, NULL);
+  gst_bin_add_many (GST_BIN (pipeline), source, vídeox, converter, encoder, payLoader, sink, NULL);
 
   /* we link the elements together */
-  gst_element_link_many (source, video-x, converter, encoder, payLoader, sink, NULL);
+  gst_element_link_many (source, vídeox, converter, encoder, payLoader, sink, NULL);
 
   /* Set the pipeline to "playing" state*/
-  g_print ("Now transmitting : %s\n",);
+  g_print ("Now transmitting");
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
   /* Iterate */
