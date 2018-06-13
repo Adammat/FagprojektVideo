@@ -36,7 +36,7 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data)
 int main (int argc, char *argv[]) {
   GMainLoop *loop;
 
-  GstElement *pipeline, *source, *vídeox, *converter, *encoder,*payLoader, *sink;
+  GstElement *pipeline, *source, *videox, *converter, *encoder,*payLoader, *sink;
   GstBus *bus;
   guint bus_watch_id;
 
@@ -48,13 +48,13 @@ int main (int argc, char *argv[]) {
   /* Create gstreamer elements */
   pipeline =  gst_pipeline_new         ("videoStreamer-player");
   source   =  gst_element_factory_make ("videotestsrc",       "source");
-  vídeox =   gst_element_factory_make("video/x-raw",         "vídeox")
+  videox =   gst_element_factory_make("video/x-raw",         "videox")
   converter = gst_element_factory_make ("videoconvert",       "converter");
   encoder =   gst_element_factory_make ("jpegenc",            "encoder");
   payLoader = gst_element_factory_make ("rtpjpegpay",         "payLoader")
   sink     =  gst_element_factory_make ("udpsink",            "sink");
 
-  if (!pipeline || !source || !vídeox || !converter || !encoder || !payLoader || !sink) {
+  if (!pipeline || !source || !videox || !converter || !encoder || !payLoader || !sink) {
     g_printerr ("One or more element(s) could not be created. Exiting.\n");
     return -1;
   }
@@ -73,10 +73,10 @@ int main (int argc, char *argv[]) {
   gst_object_unref (bus);
 
   /* we add all elements into the pipeline */
-  gst_bin_add_many (GST_BIN (pipeline), source, vídeox, converter, encoder, payLoader, sink, NULL);
+  gst_bin_add_many (GST_BIN (pipeline), source, videox, converter, encoder, payLoader, sink, NULL);
 
   /* we link the elements together */
-  gst_element_link_many (source, vídeox, converter, encoder, payLoader, sink, NULL);
+  gst_element_link_many (source, videox, converter, encoder, payLoader, sink, NULL);
 
   /* Set the pipeline to "playing" state*/
   g_print ("Now transmitting");
