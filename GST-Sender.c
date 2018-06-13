@@ -39,6 +39,7 @@ int main (int argc, char *argv[]) {
   GstElement *pipeline, *source, *converter, *encoder,*payLoader, *sink;
   GstCaps *capsFilter;
   GstBus *bus;
+  gboolean link_ok;
   guint bus_watch_id;
 
   /* Initialisation */
