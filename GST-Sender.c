@@ -56,6 +56,7 @@ int main (int argc, char *argv[]) {
 
   if (!pipeline || !source || !videox || !converter || !encoder || !payLoader || !sink) {
     g_printerr ("One or more element(s) could not be created. Exiting.\n");
+    g_printerr("%s,%s,%s,%s,%s,%s,%s,", pipeline?"true":"false",source?"true":"false",videox?"true":"false",converter?"true":"false",encoder?"true":"false",payLoader?"true":"false",sink?"true":"false");
     return -1;
   }
 
