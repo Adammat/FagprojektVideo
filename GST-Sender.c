@@ -1,6 +1,7 @@
 #include <gst/gst.h>
 #include <glib.h>
-
+#include <stdio.h>
+#include <stdlib.h>
 
 static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data)
 {
@@ -36,12 +37,16 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data)
 int main (int argc, char *argv[]) {
   GMainLoop *loop;
 
+  char *p;
+
   GstElement *pipeline, *source, *converter, *encoder,*payLoader, *sink;
   GstCaps *capsFilter;
   GstBus *bus;
   gboolean link_ok;
   guint bus_watch_id;
-
+  gint quality = strtol(argv[3],&p,10);
+  gint port = strtol(argv[5],&p,10);
+  printf("%i, %i\n",quality,port);
   /* Initialisation */
   gst_init (&argc, &argv);
 
@@ -51,8 +56,8 @@ int main (int argc, char *argv[]) {
   pipeline =  gst_pipeline_new         ("videoStreamer-player");
   source   =  gst_element_factory_make ("videotestsrc",       "source");
   capsFilter = gst_caps_new_simple("video/x-raw", 
-                  "width", G_TYPE_INT, argv[1],
-                  "height", G_TYPE_INT, argv[2],
+                  "width", G_TYPE_INT, strtol(argv[1],&p,10),
+                  "height", G_TYPE_INT, strtol(argv[2],&p,10),
                   NULL);
   converter = gst_element_factory_make ("videoconvert",       "converter");
   encoder =   gst_element_factory_make ("jpegenc",            "encoder");
@@ -70,8 +75,8 @@ int main (int argc, char *argv[]) {
   /* we set the input filename to the source element */
   //g_object_set (G_OBJECT (source), "location", argv[1], NULL);
 
-  g_object_set (G_OBJECT (encoder), "quality", G_INT, argv[3], NULL);
-  g_object_set (G_OBJECT (sink), "host", argv[4], "port", G_INT, argv[5], NULL);
+  g_object_set (G_OBJECT (encoder), "quality",(int) quality, NULL);
+  g_object_set (G_OBJECT (sink), "host", argv[4], "port",(int) port, NULL);
 
   /* we add a message handler */
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
@@ -82,7 +87,7 @@ int main (int argc, char *argv[]) {
   gst_bin_add_many (GST_BIN (pipeline), source, converter, encoder, payLoader, sink, NULL);
   link_ok = gst_element_link_filtered(source,converter,capsFilter);
   /* we link the elements together */
-  gst_element_link_many (source, converter, encoder, payLoader, sink, NULL);
+  gst_element_link_many (converter, encoder, payLoader, sink, NULL);
 
   /* Set the pipeline to "playing" state*/
   g_print ("Now transmitting");
