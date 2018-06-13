@@ -48,10 +48,10 @@ int main (int argc, char *argv[]) {
   /* Create gstreamer elements */
   pipeline =  gst_pipeline_new         ("videoStreamer-player");
   source   =  gst_element_factory_make ("videotestsrc",       "source");
-  videox =   gst_element_factory_make("video/x-raw",         "videox")
+  videox =   gst_element_factory_make("video/x-raw",         "videox");
   converter = gst_element_factory_make ("videoconvert",       "converter");
   encoder =   gst_element_factory_make ("jpegenc",            "encoder");
-  payLoader = gst_element_factory_make ("rtpjpegpay",         "payLoader")
+  payLoader = gst_element_factory_make ("rtpjpegpay",         "payLoader");
   sink     =  gst_element_factory_make ("udpsink",            "sink");
 
   if (!pipeline || !source || !videox || !converter || !encoder || !payLoader || !sink) {
