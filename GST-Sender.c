@@ -36,7 +36,8 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data)
 int main (int argc, char *argv[]) {
   GMainLoop *loop;
 
-  GstElement *pipeline, *source, *videox, *converter, *encoder,*payLoader, *sink;
+  GstElement *pipeline, *source, *converter, *encoder,*payLoader, *sink;
+  GstCaps *capsFilter;
   GstBus *bus;
   guint bus_watch_id;
 
@@ -48,15 +49,18 @@ int main (int argc, char *argv[]) {
   /* Create gstreamer elements */
   pipeline =  gst_pipeline_new         ("videoStreamer-player");
   source   =  gst_element_factory_make ("videotestsrc",       "source");
-  videox =   gst_element_factory_make  ("video/x-raw",         "videox");
+  capsFilter = gst_caps_new_simple("video/x-raw", 
+                  "width", G_TYPE_INT, argv[1],
+                  "height", G_TYPE_INT, argv[2],
+                  NULL);
   converter = gst_element_factory_make ("videoconvert",       "converter");
   encoder =   gst_element_factory_make ("jpegenc",            "encoder");
   payLoader = gst_element_factory_make ("rtpjpegpay",         "payLoader");
   sink     =  gst_element_factory_make ("udpsink",            "sink");
 
-  if (!pipeline || !source || !videox || !converter || !encoder || !payLoader || !sink) {
+  if (!pipeline || !source|| !converter || !encoder || !payLoader || !sink) {
     g_printerr ("One or more element(s) could not be created. Exiting.\n");
-    g_printerr("%s,%s,%s,%s,%s,%s,%s,", pipeline?"true":"false",source?"true":"false",videox?"true":"false",converter?"true":"false",encoder?"true":"false",payLoader?"true":"false",sink?"true":"false");
+    g_printerr("%s,%s,%s,%s,%s,%s,%s,", pipeline?"true":"false",source?"true":"false",converter?"true":"false",encoder?"true":"false",payLoader?"true":"false",sink?"true":"false");
     return -1;
   }
 
@@ -68,21 +72,16 @@ int main (int argc, char *argv[]) {
   g_object_set (G_OBJECT (encoder), "quality", argv[3], NULL);
   g_object_set (G_OBJECT (sink), "host", argv[4], "port", argv[5], NULL);
 
-  capsFilter = gst_caps_new_simple("video/x-raw", 
-                  "width", G_TYPE_INT, argv[1],
-                  "height", G_TYPE_INT, argv[2],
-                  NULL)
-
   /* we add a message handler */
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
   bus_watch_id = gst_bus_add_watch (bus, bus_call, loop);
   gst_object_unref (bus);
 
   /* we add all elements into the pipeline */
-  gst_bin_add_many (GST_BIN (pipeline), source, videox, converter, encoder, payLoader, sink, NULL);
-
+  gst_bin_add_many (GST_BIN (pipeline), source, converter, encoder, payLoader, sink, NULL);
+  link_ok = gst_element_link_filtered(source,converter,capsFilter);
   /* we link the elements together */
-  gst_element_link_many (source, videox, converter, encoder, payLoader, sink, NULL);
+  gst_element_link_many (source, converter, encoder, payLoader, sink, NULL);
 
   /* Set the pipeline to "playing" state*/
   g_print ("Now transmitting");
