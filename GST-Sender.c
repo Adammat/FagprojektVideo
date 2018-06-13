@@ -48,7 +48,7 @@ int main (int argc, char *argv[]) {
   /* Create gstreamer elements */
   pipeline =  gst_pipeline_new         ("videoStreamer-player");
   source   =  gst_element_factory_make ("videotestsrc",       "source");
-  videox =   gst_element_factory_make("video/x-raw",         "videox");
+  videox =   gst_element_factory_make  ("video/x-raw",         "videox");
   converter = gst_element_factory_make ("videoconvert",       "converter");
   encoder =   gst_element_factory_make ("jpegenc",            "encoder");
   payLoader = gst_element_factory_make ("rtpjpegpay",         "payLoader");
@@ -64,9 +64,14 @@ int main (int argc, char *argv[]) {
 
   /* we set the input filename to the source element */
   //g_object_set (G_OBJECT (source), "location", argv[1], NULL);
-  g_object_set (G_OBJECT (videox), "width",  argv[1], "height", argv[2], NULL);
+
   g_object_set (G_OBJECT (encoder), "quality", argv[3], NULL);
   g_object_set (G_OBJECT (sink), "host", argv[4], "port", argv[5], NULL);
+
+  capsFilter = gst_caps_new_simple("video/x-raw", 
+                  "width", G_TYPE_INT, argv[1],
+                  "height", G_TYPE_INT, argv[2],
+                  NULL)
 
   /* we add a message handler */
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
