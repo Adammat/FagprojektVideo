@@ -70,8 +70,8 @@ int main (int argc, char *argv[]) {
   /* we set the input filename to the source element */
   //g_object_set (G_OBJECT (source), "location", argv[1], NULL);
 
-  g_object_set (G_OBJECT (encoder), "quality", argv[3], NULL);
-  g_object_set (G_OBJECT (sink), "host", argv[4], "port", argv[5], NULL);
+  g_object_set (G_OBJECT (encoder), "quality", G_INT, argv[3], NULL);
+  g_object_set (G_OBJECT (sink), "host", argv[4], "port", G_INT, argv[5], NULL);
 
   /* we add a message handler */
   bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
