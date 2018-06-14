@@ -28,7 +28,8 @@ class RemoteClient(asyncore.dispatcher):
         recv_message = self.recv(MAX_MESSAGE_LENGTH)
         print("Full message recived: {}".format(recv_message))
         dataList = recv_message.split('}')
-
+        if(len(dataList) == 1 and dataList[0] != ''):
+            self.say(("{NOT:FORMATERR}"))
         #global localSock
         for data in dataList[:-1]:
             data = data + "}"
@@ -43,7 +44,7 @@ class RemoteClient(asyncore.dispatcher):
 
                     #Broadcast the message
                     if recived[0] == cOK :
-                        self.host.broadcast("{OK:VCL=" + str(vcl) + "}")
+                        self.host.broadcast("{VCL=" + str(vcl) + "}")
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -51,22 +52,21 @@ class RemoteClient(asyncore.dispatcher):
                 elif data[0:5] == "{FPS:" and 0 < int(data[5:-1]) < 61 and data[-1:] == "}" :
 
                     fps = int(data[5:-1])
-                    print(fps)
-                    print(self.rdymsg(cFPS,fps))
-                        #Sends all the data to the c program
+
+                    #Sends all the data to the c program
                     localSock.sendall(self.rdymsg(cFPS,fps).encode())
     		    recived = localSock.recv(1024).decode().strip()
-                    print("Message recived from server: {}".format(recived))
+
                     if recived[0] == cOK :
                         #Broadcast the message
-                        self.host.broadcast("{OK:FPS=" + str(fps) + "}")
+                        self.host.broadcast("{FPS=" + str(fps) + "}")
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
                    
                 elif data[0:5] == "{RES:" and (int(data[5:-1]) in {480, 720, 1080}) and data[-1:] == "}" :
                     res = int(data[5:-1])
-                    resindex = {480,720,1080}.index(res)
+                    resindex = [480,720,1080].index(res)
                         #Sends all the data to the c program
 
                     localSock.sendall(self.rdymsg(cRES,resindex).encode())
@@ -74,7 +74,7 @@ class RemoteClient(asyncore.dispatcher):
     
                     if recived[0] == cOK :
                         #Broadcast the message    
-                        self.host.broadcast("{OK:RES=" + str(res) + "}")
+                        self.host.broadcast("{RES=" + str(res) + "}")
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -87,7 +87,7 @@ class RemoteClient(asyncore.dispatcher):
     
                     if recived[0] == cVCL :
                         #Returns the OK message to the sender
-                        self.say(("{OK:VCL=" + str(ord(recived[1])) + "}"))
+                        self.say(("{VCL=" + str(ord(recived[1])) + "}"))
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -96,14 +96,11 @@ class RemoteClient(asyncore.dispatcher):
                     #Asks for data from the c program
                     localSock.sendall((cREQ+cFPS).encode())
     		    recived = localSock.recv(1024).decode().strip()
-                    print("Message recived from server: {}".format(recived))
-                    print("Command: {}, cFPS: {}, equality: {}".format(recived[0], cFPS, recived[0] == cFPS))
-                    print("Value: {}".format(ord(recived[1])))
 
                     #Returns the OK message to the sender
                     if recived[0] == cFPS :
                         #Returns the OK message to the sender
-                        self.say(("{OK:FPS=" + str(ord(recived[1])) + "}"))
+                        self.say(("{FPS=" + str(ord(recived[1])) + "}"))
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -117,7 +114,7 @@ class RemoteClient(asyncore.dispatcher):
 
                     if recived[0] == cRES:
                         #Returns the OK message to the sender
-                        self.say(("{OK:RES=" + str(ord(recived[1])) + "}"))
+                        self.say(("{RES=" + str(ord(recived[1])) + "}"))
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -141,7 +138,7 @@ class RemoteClient(asyncore.dispatcher):
     
                     else:
                             #Returns the ERROR message to the sender
-                        self.say(("{NOT:ERROR}"))
+                        self.say(("{NOT:UNKNOWNCMD}"))
     
             except ValueError: #Will be called upon failure of the int function call. This should happen when the value in given messages are not int's. Example {REQ:asdf}
                 if data[0:5] == "{FPS:" and data[-1:] == "}":

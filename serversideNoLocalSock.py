@@ -25,6 +25,7 @@ class RemoteClient(asyncore.dispatcher):
 
     def handle_read(self):
         recv_message = self.recv(MAX_MESSAGE_LENGTH)
+        print("Full message recived: {}".format(recv_message))
         dataList = recv_message.split('}')
         global VCL
         global RES

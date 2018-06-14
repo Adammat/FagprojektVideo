@@ -65,4 +65,6 @@ if __name__ == '__main__':
     alice.say('{REQ:FPS}')
     alice.say('{FPS:20}')
     bob.say('{REQ:FPS}')
+    bob.say('{VCL:20}')
+    bob.say('{RES:1080}')
     asyncore.loop()

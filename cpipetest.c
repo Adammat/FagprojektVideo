@@ -1,4 +1,4 @@
-#include "cpipetest.h" //TODO Must be exchanged wih actual working.h
+#include "threadMainTest.h" //TODO Must be exchanged wih actual working.h
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,19 +6,13 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define SOCKET_NAME "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket"
+#define SOCKET_NAME "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket" //TODO Skal ændres
 #define BUFFER_SIZE 3
 
 enum cmd{ERR,OK,REQ,VCL,FPS,RES};
 
-int vcl = 1;
-int fps = 60;
-int res = 720;
 
-
-int
-main(int argc, char *argv[])
-{
+void* localSocket_thread(){
     struct sockaddr_un name;
     int down_flag = 0;
     int ret;
@@ -167,33 +161,8 @@ main(int argc, char *argv[])
 
     unlink(SOCKET_NAME);
 
-    exit(EXIT_SUCCESS);
+    return NULL;
 }
 
-int getVCL(){
-	return vcl;
-}
 
-int getFPS(){
-	return fps;
-}
-
-int getRES(){
-	return res;
-}
-
-int setVCL(int vcl2){
-	vcl = vcl2;
-	return 1;
-}
-
-int setFPS(int fps2){
-	fps = fps2;
-	return 1;
-}
-
-int setRES(int res2){
-	res = res2;
-	return 1;
-}
 

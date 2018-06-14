@@ -1,5 +1,5 @@
-#ifndef CPIPTEST_H
-#define CPIPTEST_H
+#ifndef CPIPETEST_H
+#define CPIPETEST_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,11 +7,6 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-int getVCL();
-int getFPS();
-int getRES();
-int setVCL(int vcl2);
-int setFPS(int fps2);
-int setRES(int res2);
+void* localSocket_thread();
 
 #endif // SENSOR_H
