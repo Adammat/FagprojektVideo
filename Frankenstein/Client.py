@@ -61,7 +61,5 @@ if __name__ == '__main__':
     logging.info('Creating clients')
     alice = Client(('localhost', 9999), 'Alice')
     bob = Client(('localhost', 9999), 'Bob')
-    bob.say('{REQ:FPS}')
-    alice.say('{FPS:20}')
-    bob.say('{REQ:VCL}')
+    bob.say('{VCL:5}')
     asyncore.loop()

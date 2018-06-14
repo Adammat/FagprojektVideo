@@ -30,7 +30,7 @@ COMPILING (VIGTIGT!):
 Koden skal compiles med koden:
 gcc -pthread -o program threadMainTest.c cpipetest.c
 
-Hvor: program er output programmet (.exe)
+Hvor: program er output programmet (.o)
       thredMainTest.c er main koden der starter threaten.
       cpipetest.c er koden der indeholder localSocket_thread()
 
