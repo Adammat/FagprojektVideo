@@ -2,7 +2,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
-int quality=strtol(argv[3],&p,10);
+int quality
 
 void setQuality () {
   if(quality > 1){
@@ -44,7 +44,7 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data)
 
 int main (int argc, char *argv[]) {
   GMainLoop *loop;
-
+  quality=strtol(argv[3],&p,10);
   char *p;
 
   GstElement *pipeline, *source, *converter, *encoder,*payLoader, *sink;
