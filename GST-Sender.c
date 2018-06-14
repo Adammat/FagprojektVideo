@@ -98,7 +98,7 @@ int main (int argc, char *argv[]) {
   link_ok = gst_element_link_filtered(source,converter,capsFilter);
   /* we link the elements together */
   gst_element_link_many (converter, encoder, payLoader, sink, NULL);
-  GObject.timeout_add(100,setQuality());
+  g_timeout_add(100,setQuality());
   /* Set the pipeline to "playing" state*/
   g_print ("Now transmitting");
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
