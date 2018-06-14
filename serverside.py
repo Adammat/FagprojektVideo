@@ -9,8 +9,6 @@ import logging
 
 MAX_MESSAGE_LENGTH = 1024
 
-
-
 class RemoteClient(asyncore.dispatcher):
 
     """Wraps a remote client socket."""
@@ -22,76 +20,120 @@ class RemoteClient(asyncore.dispatcher):
 
     def say(self, message):
         self.outbox.append(message)
-        print("Appended message: {}".format(message))
+
+    def rdymsg(self,command, value):
+        return command + chr(value)
 
     def handle_read(self):
         recv_message = self.recv(MAX_MESSAGE_LENGTH)
+        print("Full message recived: {}".format(recv_message))
         dataList = recv_message.split('}')
-        global VCL
-        global RES
-        global FPS
+
         #global localSock
         for data in dataList[:-1]:
             data = data + "}"
             print("Data recived: {}".format(data))
             try:
-                if data[0:5] == "{VCL:" and 0 < int(data[5:-1]) < 4 and data[-1:] == "}" :
-                    VCL = int(data[5:-1])
+                if data[0:5] == "{VCL:" and 0 < int(data[5:-1]) < 101 and data[-1:] == "}" :
+                    vcl = int(data[5:-1])
     
-                        #Sends all the data to the c program
-                    #localSock.sendall(("VCL"+ str(VCL)).encode())
-    		    #recived = localSock.recv(1024).decode().strip()
+                    #Sends all the data to the c program
+                    localSock.sendall(self.rdymsg(cVCL,vcl).encode())
+    		    recived = localSock.recv(1024).decode().strip()
 
-                        #Broadcast the message
-                    self.host.broadcast("{OK:VCL=" + str(VCL) + "}")
+                    #Broadcast the message
+                    if recived[0] == cOK :
+                        self.host.broadcast("{OK:VCL=" + str(vcl) + "}")
+                    else:
+                        #Server sent wrong message
+                        self.say(("{NOT:SERVERERROR}")) 
 
                 elif data[0:5] == "{FPS:" and 0 < int(data[5:-1]) < 61 and data[-1:] == "}" :
-    
-                    FPS = int(data[5:-1])
-    
+
+                    fps = int(data[5:-1])
+                    print(fps)
+                    print(self.rdymsg(cFPS,fps))
                         #Sends all the data to the c program
-    
-                    #localSock.sendall(("FPS"+ str(FPS)).encode())
-    		    #recived = localSock.recv(1024).decode().strip()
-    
+                    localSock.sendall(self.rdymsg(cFPS,fps).encode())
+    		    recived = localSock.recv(1024).decode().strip()
+                    print("Message recived from server: {}".format(recived))
+                    if recived[0] == cOK :
                         #Broadcast the message
-                    self.host.broadcast("{OK:FPS=" + str(FPS) + "}")
+                        self.host.broadcast("{OK:FPS=" + str(fps) + "}")
+                    else:
+                        #Server sent wrong message
+                        self.say(("{NOT:SERVERERROR}")) 
                    
                 elif data[0:5] == "{RES:" and (int(data[5:-1]) in {480, 720, 1080}) and data[-1:] == "}" :
-                    RES = int(data[5:-1])
-    
+                    res = int(data[5:-1])
+                    resindex = {480,720,1080}.index(res)
                         #Sends all the data to the c program
-                    #localSock.sendall(("RES"+ str(RES)).encode())
-    		    #recived = localSock.recv(1024).decode().strip()
+
+                    localSock.sendall(self.rdymsg(cRES,resindex).encode())
+    		    recived = localSock.recv(1024).decode().strip()
     
-                        #Broadcast the message
-    
-                    self.host.broadcast("{OK:RES=" + str(RES) + "}")
-    
-                elif data == "{REQ:FPS}":
-                    #Returns the OK message to the sender
-                    self.say(("{OK:FPS=" + str(FPS) + "}"))
-    
+                    if recived[0] == cOK :
+                        #Broadcast the message    
+                        self.host.broadcast("{OK:RES=" + str(res) + "}")
+                    else:
+                        #Server sent wrong message
+                        self.say(("{NOT:SERVERERROR}")) 
                 elif data == "{REQ:VCL}":
-                    #Returns the OK message to the sender
-                    self.say(("{OK:VCL=" + str(VCL) + "}"))
+                    
+
+                    #Asks for data from the c program
+                    localSock.sendall((cREQ+cVCL).encode())
+    		    recived = localSock.recv(1024).decode().strip()
     
-                elif data == "{REQ:RES}":
+                    if recived[0] == cVCL :
+                        #Returns the OK message to the sender
+                        self.say(("{OK:VCL=" + str(ord(recived[1])) + "}"))
+                    else:
+                        #Server sent wrong message
+                        self.say(("{NOT:SERVERERROR}")) 
+
+                elif data == "{REQ:FPS}":
+                    #Asks for data from the c program
+                    localSock.sendall((cREQ+cFPS).encode())
+    		    recived = localSock.recv(1024).decode().strip()
+                    print("Message recived from server: {}".format(recived))
+                    print("Command: {}, cFPS: {}, equality: {}".format(recived[0], cFPS, recived[0] == cFPS))
+                    print("Value: {}".format(ord(recived[1])))
+
                     #Returns the OK message to the sender
-                    self.say(("{OK:RES=" + str(RES) + "}"))
+                    if recived[0] == cFPS :
+                        #Returns the OK message to the sender
+                        self.say(("{OK:FPS=" + str(ord(recived[1])) + "}"))
+                    else:
+                        #Server sent wrong message
+                        self.say(("{NOT:SERVERERROR}")) 
+
+
+                elif data == "{REQ:RES}":
+                    
+                    #Asks for data from the c program
+                    localSock.sendall((cREQ + cRES).encode())
+    		    recived = localSock.recv(1024).decode().strip()
+
+                    if recived[0] == cRES:
+                        #Returns the OK message to the sender
+                        self.say(("{OK:RES=" + str(ord(recived[1])) + "}"))
+                    else:
+                        #Server sent wrong message
+                        self.say(("{NOT:SERVERERROR}")) 
     
                 else:
-                    if data[0:5] == "{FPS:" and data[-1:] == "}": #TODO Accepted even though mutiple occurences of }, may be found.
+                    if data[0:5] == "{FPS:" and data[-1:] == "}": 
                         #Returns the NOT message to the sender
-                        self.say(("{NOT:FPS=" + str(FPS) + "}"))
+                        self.say(("{NOT:FPS=" + str(fps) + "}"))
         
                     elif data[0:5] == "{VCL:" and data[-1:] == "}":
                         #Returns the NOT message to the sender
-                        self.say(("{NOT:VCL=" + str(VCL) + "}"))
+                        self.say(("{NOT:VCL=" + str(vcl) + "}"))
     
                     elif data[0:5] == "{RES:" and data[-1:] == "}":
                         #Returns the NOT message to the sender
-                        self.say(("{NOT:RES=" + str(RES) + "}"))
+                        self.say(("{NOT:RES=" + str(res) + "}"))
     
           	    elif data[0:5] == "{REQ:" and data[-1:] == "}":
                             #Returns the NOT message to the sender
@@ -104,15 +146,15 @@ class RemoteClient(asyncore.dispatcher):
             except ValueError: #Will be called upon failure of the int function call. This should happen when the value in given messages are not int's. Example {REQ:asdf}
                 if data[0:5] == "{FPS:" and data[-1:] == "}":
                        #Returns the NOT message to the sender
-                    self.say(("{NOT:FPS=" + str(FPS) + "}"))
+                    self.say(("{NOT:FPS=" + str(fps) + "}"))
     
                 elif data[0:5] == "{VCL:" and data[-1:] == "}":
                     #Returns the NOT message to the sender
-                    self.say(("{NOT:VCL=" + str(VCL) + "}"))
+                    self.say(("{NOT:VCL=" + str(vcl) + "}"))
     
                 elif data[0:5] == "{RES:" and data[-1:] == "}":
                         #Returns the NOT message to the sender
-                    self.say(("{NOT:RES=" + str(RES) + "}"))
+                    self.say(("{NOT:RES=" + str(res) + "}"))
     
                 elif data[0:5] == "{REQ:" and data[-1:] == "}":
                         #Returns the NOT message to the sender
@@ -132,14 +174,14 @@ class RemoteClient(asyncore.dispatcher):
         message = self.outbox.popleft()
         if len(message) > MAX_MESSAGE_LENGTH:
             raise ValueError('Message too long')
-        print("Sending message: {}".format(message)) 
+        print("Sending message: {}, to {}".format(message, self.getpeername())) 
         self.sendall(message)
 
 class Host(asyncore.dispatcher):
 
     log = logging.getLogger('Host')
 
-    def __init__(self, address=('localhost', 9999)):
+    def __init__(self, address):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR,1)
@@ -166,9 +208,10 @@ if __name__ == "__main__":
     
     SOCKADDR = "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket"
     #Initial values 
-    FPS = 60
-    VCL = 1
-    RES = 720
+    HOST, PORT = 'localhost', 9999
+
+    #Define commands (ENUM)
+    cERR, cOK, cREQ, cVCL, cFPS, cRES = chr(0), chr(1), chr(2),chr(3),chr(4),chr(5) 
 
     # Create the socket (AF_UNIX is a local socket. SEQPACKET is two way communication)
     localSock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
@@ -181,7 +224,7 @@ if __name__ == "__main__":
         raise
 
     logging.info('Creating host')
-    host = Host()
+    host = Host((HOST,PORT))
     logging.info('Host Socketname: %s', host.getsockname())
     '''logging.info('Creating clients')
     alice = Client(('localhost', 9999), 'Alice')
