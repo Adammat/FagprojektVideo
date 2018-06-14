@@ -1,3 +1,4 @@
+#include "threadMainTest.h" //TODO Must be exchanged wih actual working.h
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,14 +6,13 @@
 #include <sys/un.h>
 #include <unistd.h>
 
-#define SOCKET_NAME "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket"
-#define BUFFER_SIZE 12
+#define SOCKET_NAME "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket" //TODO Skal ændres
+#define BUFFER_SIZE 3
+
+enum cmd{ERR,OK,REQ,VCL,FPS,RES};
 
 
-
-int
-main(int argc, char *argv[])
-{
+void* localSocket_thread(){
     struct sockaddr_un name;
     int down_flag = 0;
     int ret;
@@ -20,7 +20,9 @@ main(int argc, char *argv[])
     int data_socket;
     int result;
     char buffer[BUFFER_SIZE];
-    char cmd,value;
+    enum cmd cmd;
+	int value;
+	int resArr[3] = {480,720,1080};
 
     /*
      * In case the program exited inadvertently on the last run,
@@ -80,6 +82,8 @@ main(int argc, char *argv[])
 
 		for(;;) {
 
+			printf("vcl: %i, fps: %i, res %i\n", getVCL(),getFPS(),getRES());
+			fflush(stdout);
 			/* Wait for next data packet. */
 			memset(buffer, '\0', BUFFER_SIZE);
 			ret = read(data_socket, buffer, BUFFER_SIZE);
@@ -93,34 +97,52 @@ main(int argc, char *argv[])
 			buffer[BUFFER_SIZE - 1] = 0;
 
 
-			printf("Recived data: %s\n", buffer);
+			printf("Recived data: %b\n", buffer[0]);
 			fflush(stdout);
 
 			/* Readying bit values */
 
-	//        cmd = buffer[0] & 0x03;
-	//        value = (buffer[0] & 0xFC)>>2;
-	//
-	//        printf("cmd: %c, value: %c\n", cmd,value);
-	//        fflush(stdout);
+	        cmd = buffer[0];
+	        value = buffer[1];
 
+	        printf("cmd: %d, value: %i\n", cmd,value);
+	        fflush(stdout);
+
+	        memset(buffer, '\0', BUFFER_SIZE);
 			/* Handle commands. */
 
-	//        if ((int)cmd == 1) {
-	//            //TODO VCL CODE
-	//        } else if ((int)cmd == 2) {
-	//            //TODO FPS CODE
-	//        } else if ((int)cmd == 3) {
-	//        	//TODO RES CODE
-	//        } else {
-	//        	//TODO ERROR CODE
-	//        }
 
+	        switch(cmd){
+	        case REQ:
+	        	switch(value){
+	        	case VCL:
+	        		sprintf(buffer, "%c%c", VCL, getVCL());
+	        		break;
+	        	case FPS:
+	        		sprintf(buffer, "%c%c", FPS, getFPS());
+	        		break;
+	        	case RES:
+	        		sprintf(buffer, "%c%c", RES, getRES());
+	        		break;
+	        	default:
+		        	sprintf(buffer, "%c", ERR);
+	        	}
+	        	break;
+	        case VCL:
+	        	sprintf(buffer, "%c", setVCL(value));
+	        	break;
+	        case FPS:
+	        	sprintf(buffer, "%c", setFPS(value));
+	        	break;
+	        case RES:
+	        	sprintf(buffer, "%c", setRES(resArr[value]));
+	        	break;
+	        default:
+	        	sprintf(buffer, "%c", ERR);
+	        }
 
 
 			/* Send result. */
-			memset(buffer, '\0', BUFFER_SIZE);
-			sprintf(buffer, "%c", '1');
 			printf("Sending data: %s\n", buffer);
 			fflush(stdout);
 			ret = write(data_socket, buffer, BUFFER_SIZE);
@@ -139,5 +161,8 @@ main(int argc, char *argv[])
 
     unlink(SOCKET_NAME);
 
-    exit(EXIT_SUCCESS);
+    return NULL;
 }
+
+
+
