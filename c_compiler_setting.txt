@@ -1,2 +1,3 @@
 gcc GST-Sender.c -o senderTest `pkg-config --cflags --libs gstreamer-1.0`
-
+//Multithreaded working pipeline modifier
+gcc -pthread -o testapp threadMainTest.c cpipetest.c `pkg-config --cflags --libs gstreamer-1.0`
