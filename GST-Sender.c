@@ -2,8 +2,6 @@
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gst/controller/gstinterpolationcontrolsource.h>
-#include <gst/controller/gstdirectcontrolbinding.h>
 int quality=strtol(argv[3],&p,10);
 
 void setQuality () {
