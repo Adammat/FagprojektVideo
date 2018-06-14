@@ -1,4 +1,5 @@
 #include <gst/gst.h>
+#include <stdio.h>
 
 int main(int argc, char *argv[]) {
   GstElement *pipeline, *source, *sink, *queue, *x264, *mpeg, *rndbuff;
@@ -8,7 +9,7 @@ int main(int argc, char *argv[]) {
 
   /* Initialize GStreamer */
   gst_init (&argc, &argv);
-
+printf ("We started a thing\n");
   /* Create the elements */
   source = gst_element_factory_make ("videotestsrc", "source");
   sink = gst_element_factory_make ("udpsink", "sink");
@@ -17,31 +18,36 @@ int main(int argc, char *argv[]) {
 	mpeg = gst_element_factory_make("mpegtsmux","mpeg");
 	rndbuff = gst_element_factory_make("rndbuffersize","rndbuff");
   /* Create the empty pipeline */
-  pipeline = gst_parse_launch("gst-launch-1.0 -vv -e videotestsrc pattern=ball ! queue ! x264enc bitrate=5000 ! mpegtsmux alignment=7 ! rndbuffersize max=1316 min=1316 ! udpsink host=127.0.0.1 port=5000",NULL);
-
-  if (!pipeline || !source || !sink) {
+  //pipeline = gst_parse_launch("gst-launch-1.0 -vv -e videotestsrc pattern=ball ! queue ! x264enc bitrate=5000 ! mpegtsmux alignment=7 ! rndbuffersize max=1316 min=1316 ! udpsink host=127.0.0.1 port=5000",NULL);
+	pipeline = gst_pipeline_new("pipeline");
+  if (!pipeline || !source || !sink || !queue || !x264 || !mpeg || !rndbuff) {
     g_printerr ("Not all elements could be created.\n");
     return -1;
   }
 
-  /* Build the pipeline
+  // Build the pipeline
   gst_bin_add_many (GST_BIN (pipeline), source,queue,x264,mpeg,rndbuff,sink, NULL);
   if (gst_element_link (source, sink) != TRUE) {
     g_printerr ("Elements could not be linked.\n");
     gst_object_unref (pipeline);
     return -1;
-  } */
+  }
+	printf ("We have built the pipline\n");
+
+
+
 
   /* Modify the source's properties */
   g_object_set (source, "pattern", 18, NULL);
-	g_object_set(G_OBJECT(sink),
+	g_object_set(sink,
             "host", "127.0.0.1",
             "port", 5000,
             NULL);
-	g_object_set(G_OBJECT(x264),"bitrate",5000,NULL);
-	g_object_set(G_OBJECT(mpeg),"alignment",7,NULL);
-	g_object_set(G_OBJECT(rndbuff),"max",1316,
+	g_object_set(x264,"bitrate",5000,NULL);
+	g_object_set(mpeg,"alignment",7,NULL);
+	g_object_set(rndbuff,"max",1316,
 											 "min",1316,NULL);
+	printf ("We have modified properties\n");
   /* Start playing */
   ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
   if (ret == GST_STATE_CHANGE_FAILURE) {
