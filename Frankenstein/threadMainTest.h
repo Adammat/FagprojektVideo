@@ -10,17 +10,21 @@ struct elmts {
   GstElement *pipeline;
   GstElement *source;
   GstElement *converter;
-  GstCaps *capsFilter;
+  GstElement *capsFilter;
   GstElement *encoder;
   GstElement *payLoader;
   GstElement *sink;
+  int fps;
+  int vcl;
+  int height;
+  int width;
 };
 typedef struct elmts Elementlist;
 int getVCL();
 int getFPS();
 int getRES();
 int setVCL(int vcl2, Elementlist *e);
-int setFPS(int fps2);
-int setRES(int res2);
+int setFPS(int fps2, Elementlist *e);
+int setRES(int w,int h);
 
-#endif // SENSOR_H
+#endif 
