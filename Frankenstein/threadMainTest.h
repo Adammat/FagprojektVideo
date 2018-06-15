@@ -25,6 +25,6 @@ int getFPS();
 int getRES();
 int setVCL(int vcl2, Elementlist *e);
 int setFPS(int fps2, Elementlist *e);
-int setRES(int w,int h);
+int setRES(int w,int h,Elementlist *e);
 
-#endif 
+#endif

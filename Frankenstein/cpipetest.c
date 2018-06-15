@@ -137,7 +137,7 @@ void* localSocket_thread(Elementlist *e){
 	        	sprintf(buffer, "%c", setFPS(value,e));
 	        	break;
 	        case RES:
-	        	sprintf(buffer, "%c", setRES(resArrWidth[value],resArrHeight[value]));
+	        	sprintf(buffer, "%c", setRES(resArrWidth[value],resArrHeight[value],e));
 	        	break;
 	        default:
 	        	sprintf(buffer, "%c", ERR);

@@ -166,12 +166,12 @@ int setFPS(int fps2, Elementlist *e){
 	return 1;
 }
 
-int setRES(int w,int h){
+int setRES(int w,int h,Elementlist *e){
 	g_object_set (G_OBJECT (e->capsFilter), "caps",
 					   gst_caps_new_simple("video/x-raw",
 					"width", G_TYPE_INT, w,
 					"height", G_TYPE_INT, h,
-					"framerate",GST_TYPE_FRACTION,(e->fps)),1,
+					"framerate",GST_TYPE_FRACTION,(e->fps),1,
 					NULL) , NULL);
 	e->width = w;
 	e->height = h;
