@@ -24,8 +24,8 @@ void* localSocket_thread(Elementlist *e){
     char buffer[BUFFER_SIZE];
     enum cmd cmd;
 	int value;
-	int resArr[3] = {480,720,1080};
-
+	int resArrHeight[3] = {480,720,1080};
+	int resArrWidth[3] = {640,1280,1920};
     /*
      * In case the program exited inadvertently on the last run,
      * remove the socket.
@@ -137,7 +137,7 @@ void* localSocket_thread(Elementlist *e){
 	        	sprintf(buffer, "%c", setFPS(value));
 	        	break;
 	        case RES:
-	        	sprintf(buffer, "%c", setRES(resArr[value]));
+	        	sprintf(buffer, "%c", setRES(resArrWidth[value],resArrHeight[value]));
 	        	break;
 	        default:
 	        	sprintf(buffer, "%c", ERR);
