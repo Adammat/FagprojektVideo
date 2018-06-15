@@ -61,5 +61,6 @@ if __name__ == '__main__':
     logging.info('Creating clients')
     alice = Client(('localhost', 9999), 'Alice')
     bob = Client(('localhost', 9999), 'Bob')
-    bob.say('{VCL:5}')
+    for data in sys.argv[1:]:
+		alice.say(data)
     asyncore.loop()

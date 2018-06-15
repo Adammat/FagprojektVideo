@@ -75,24 +75,30 @@ int main(int argc, char* argv[]) {
   /* Create gstreamer elements */
   elements.pipeline =  gst_pipeline_new         ("videoStreamer-player");
   elements.source   =  gst_element_factory_make ("videotestsrc",       "source");
-  elements.capsFilter = gst_caps_new_simple("video/x-raw",
-                  "width", G_TYPE_INT, strtol(argv[1],&p,10),
-                  "height", G_TYPE_INT, strtol(argv[2],&p,10),
-                  NULL);
+  elements.capsFilter = gst_element_factory_make("capsfilter",		   "capsFilter");
   elements.converter = gst_element_factory_make ("videoconvert",       "converter");
   elements.encoder =   gst_element_factory_make ("jpegenc",            "encoder");
   elements.payLoader = gst_element_factory_make ("rtpjpegpay",         "payLoader");
   elements.sink     =  gst_element_factory_make ("udpsink",            "sink");
 
-  if (!elements.pipeline || !elements.source|| !elements.converter || !elements.encoder || !elements.payLoader || !elements.sink) {
+
+  /*gst_caps_new_simple("video/x-raw",
+                  "width", G_TYPE_INT, strtol(argv[1],&p,10),
+                  "height", G_TYPE_INT, strtol(argv[2],&p,10),
+                  NULL);*/
+  if (!elements.pipeline || !elements.source|| !elements.capsFilter || !elements.converter || !elements.encoder || !elements.payLoader || !elements.sink) {
     g_printerr ("One or more element(s) could not be created. Exiting.\n");
   }
 
   /* Set up the pipeline */
 
   /* we set the input filename to the source element */
-  //g_object_set (G_OBJECT (source), "location", argv[1], NULL);
-
+  g_object_set (G_OBJECT (elements.capsFilter), "caps",
+  				   gst_caps_new_simple("video/x-raw",
+                  "width", G_TYPE_INT, strtol(argv[1],&p,10),
+                  "height", G_TYPE_INT, strtol(argv[2],&p,10),
+                  NULL) , NULL);
+  g_object_set (G_OBJECT (elements.source), "pattern",18, NULL);
   g_object_set (G_OBJECT (elements.encoder), "quality",(int) quality, NULL);
   g_object_set (G_OBJECT (elements.sink), "host", argv[4], "port",(int) port, NULL);
 
@@ -102,10 +108,10 @@ int main(int argc, char* argv[]) {
   gst_object_unref (bus);
 
   /* we add all elements into the pipeline */
-  gst_bin_add_many (GST_BIN (elements.pipeline), elements.source, elements.converter, elements.encoder, elements.payLoader, elements.sink, NULL);
-  link_ok = gst_element_link_filtered(elements.source,elements.converter,elements.capsFilter);
+  gst_bin_add_many (GST_BIN (elements.pipeline), elements.source,elements.capsFilter ,elements.converter, elements.encoder, elements.payLoader, elements.sink, NULL);
+  //link_ok = gst_element_link_filtered(elements.source,elements.converter,elements.capsFilter);
   /* we link the elements together */
-  gst_element_link_many (elements.converter, elements.encoder, elements.payLoader, elements.sink, NULL);
+  gst_element_link_many (elements.source,elements.capsFilter,elements.converter, elements.encoder, elements.payLoader, elements.sink, NULL);
 
   /* Set the pipeline to "playing" state*/
   g_print ("Now transmitting\n");
@@ -147,7 +153,14 @@ int setVCL(int vcl2,Elementlist *e){
 	return 1;
 }
 
-int setFPS(int fps2){
+int setFPS(int fps2, Elementlist *e){
+
+	g_object_set (G_OBJECT (e->capsFilter), "caps",
+    				   gst_caps_new_simple("video/x-raw",
+                    "width", G_TYPE_INT, 1280,
+                    "height", G_TYPE_INT, 720,
+					"framerate",GST_TYPE_FRACTION,fps2,1,
+                    NULL) , NULL);
 	fps = fps2;
 	return 1;
 }

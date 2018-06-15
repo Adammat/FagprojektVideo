@@ -10,7 +10,7 @@ struct elmts {
   GstElement *pipeline;
   GstElement *source;
   GstElement *converter;
-  GstCaps *capsFilter;
+  GstElement *capsFilter;
   GstElement *encoder;
   GstElement *payLoader;
   GstElement *sink;
@@ -20,7 +20,7 @@ int getVCL();
 int getFPS();
 int getRES();
 int setVCL(int vcl2, Elementlist *e);
-int setFPS(int fps2);
+int setFPS(int fps2, Elementlist *e);
 int setRES(int res2);
 
 #endif // SENSOR_H
