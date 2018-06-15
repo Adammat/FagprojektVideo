@@ -25,6 +25,6 @@ int getFPS();
 int getRES();
 int setVCL(int vcl2, Elementlist *e);
 int setFPS(int fps2, Elementlist *e);
-int setRES(int res2);
+int setRES(int w,int h);
 
-#endif // SENSOR_H
+#endif 
