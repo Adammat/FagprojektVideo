@@ -14,6 +14,10 @@ struct elmts {
   GstElement *encoder;
   GstElement *payLoader;
   GstElement *sink;
+  int fps;
+  int vcl;
+  int height;
+  int width;
 };
 typedef struct elmts Elementlist;
 int getVCL();

@@ -60,13 +60,14 @@ int main(int argc, char* argv[]) {
   gboolean link_ok;
   guint bus_watch_id;
   char *p;
-  gint quality = strtol(argv[3],&p,10);
-  gint port = strtol(argv[5],&p,10);
 
-  quality=strtol(argv[3],&p,10);
+  elements.width = strtol(argv[1],&p,10);
+  elements.height = strtol(argv[2],&p,10);
+  elements.vcl = strtol(argv[3],&p,10);
+  int port=strtol(argv[5],&p,10);
 
 
-  printf("%i, %i\n",quality,port);
+
   /* Initialisation */
   gst_init (&argc, &argv);
 
@@ -99,7 +100,7 @@ int main(int argc, char* argv[]) {
                   "height", G_TYPE_INT, strtol(argv[2],&p,10),
                   NULL) , NULL);
   g_object_set (G_OBJECT (elements.source), "pattern",18, NULL);
-  g_object_set (G_OBJECT (elements.encoder), "quality",(int) quality, NULL);
+  g_object_set (G_OBJECT (elements.encoder), "quality",elements.vcl, NULL);
   g_object_set (G_OBJECT (elements.sink), "host", argv[4], "port",(int) port, NULL);
 
   /* we add a message handler */
@@ -157,11 +158,11 @@ int setFPS(int fps2, Elementlist *e){
 
 	g_object_set (G_OBJECT (e->capsFilter), "caps",
     				   gst_caps_new_simple("video/x-raw",
-                    "width", G_TYPE_INT, 1280,
-                    "height", G_TYPE_INT, 720,
+                    "width", G_TYPE_INT, (e->width),
+                    "height", G_TYPE_INT, (e->height),
 					"framerate",GST_TYPE_FRACTION,fps2,1,
                     NULL) , NULL);
-	fps = fps2;
+	e->fps = fps2;
 	return 1;
 }
 
