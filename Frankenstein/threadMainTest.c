@@ -43,7 +43,7 @@ int vcl = 1;
 int fps = 60;
 int res = 720;
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]) {
   Elementlist elements;
   pthread_t thread[1];
   int result_code;
@@ -56,7 +56,6 @@ int main(int argc, char** argv) {
   //THIS IS ONLY TO KEEP MAIN RUNNING
   GMainLoop *loop;
 
-  GstCaps *capsFilter;
   GstBus *bus;
   gboolean link_ok;
   guint bus_watch_id;
@@ -104,7 +103,7 @@ int main(int argc, char** argv) {
 
   /* we add all elements into the pipeline */
   gst_bin_add_many (GST_BIN (elements.pipeline), elements.source, elements.converter, elements.encoder, elements.payLoader, elements.sink, NULL);
-  link_ok = gst_element_link_filtered(elements.source,elements.converter,capsFilter);
+  link_ok = gst_element_link_filtered(elements.source,elements.converter,elements.capsFilter);
   /* we link the elements together */
   gst_element_link_many (elements.converter, elements.encoder, elements.payLoader, elements.sink, NULL);
 
