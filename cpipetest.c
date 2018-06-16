@@ -22,7 +22,8 @@ void* localSocket_thread(){
     char buffer[BUFFER_SIZE];
     enum cmd cmd;
 	int value;
-	int resArr[3] = {480,720,1080};
+	int resArrHeight[3] = {480,720,1080}; //Kan også skrives som 480*1.5^i, hvor i er index
+	int resArrWidth[3] = {640,1280,1920}; //Kan også skrives som 640*(i+1), hvor i er index
 
     /*
      * In case the program exited inadvertently on the last run,
@@ -77,8 +78,8 @@ void* localSocket_thread(){
     	if (data_socket == -1) {
     		perror("accept");
     		exit(EXIT_FAILURE);
-    }
-    /* This is the main loop for handling connections. */
+    	}
+    	/* This is the main loop for handling connections. */
 
 		for(;;) {
 
@@ -97,7 +98,7 @@ void* localSocket_thread(){
 			buffer[BUFFER_SIZE - 1] = 0;
 
 
-			printf("Recived data: %b\n", buffer[0]);
+			printf("Recived data: %s\n", buffer);
 			fflush(stdout);
 
 			/* Readying bit values */
@@ -111,8 +112,10 @@ void* localSocket_thread(){
 	        memset(buffer, '\0', BUFFER_SIZE);
 			/* Handle commands. */
 
-
 	        switch(cmd){
+	        case ERR: //This is only called when the socket is closed from client
+	        	goto LOOPBREAK; //HACK
+	        	break;
 	        case REQ:
 	        	switch(value){
 	        	case VCL:
@@ -122,7 +125,18 @@ void* localSocket_thread(){
 	        		sprintf(buffer, "%c%c", FPS, getFPS());
 	        		break;
 	        	case RES:
-	        		sprintf(buffer, "%c%c", RES, getRES());
+	        		sprintf(buffer, "%c%c", RES, (getRES()-480)/240); //HACK Converts 480,720,1080 into 0,1,2
+//	        		switch(getRES())
+//	        		case 480:
+//	        			sprintf(buffer, "%c%c", RES, 0);
+//	        			break;
+//	        		case 720:
+//	        			sprintf(buffer, "%c%c", RES, 1);
+//	        			break;
+//	        		case 1080:
+//	        			sprintf(buffer, "%c%c", RES, 2);
+//	        		default:
+//	        			sprintf(buffer, "%c", ERR);
 	        		break;
 	        	default:
 		        	sprintf(buffer, "%c", ERR);
@@ -135,7 +149,7 @@ void* localSocket_thread(){
 	        	sprintf(buffer, "%c", setFPS(value));
 	        	break;
 	        case RES:
-	        	sprintf(buffer, "%c", setRES(resArr[value]));
+	        	sprintf(buffer, "%c", setRES(resArrHeight[value]));
 	        	break;
 	        default:
 	        	sprintf(buffer, "%c", ERR);
@@ -148,13 +162,13 @@ void* localSocket_thread(){
 			ret = write(data_socket, buffer, BUFFER_SIZE);
 
 			if (ret == -1) {
-				perror("read");
+				perror("send");
 				exit(EXIT_FAILURE);
 			}
 
 		}
 
-		close(connection_socket);
+		LOOPBREAK:close(data_socket);
 	}
 
     /* Unlink the socket. */

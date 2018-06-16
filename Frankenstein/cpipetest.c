@@ -115,6 +115,9 @@ void* localSocket_thread(Elementlist *e){
 
 
 	        switch(cmd){
+	        case ERR: //This is only called when the socket is closed from client
+	        	goto LOOPBREAK; //HACK
+	        	break;
 	        case REQ:
 	        	switch(value){
 	        	case VCL:
@@ -124,7 +127,7 @@ void* localSocket_thread(Elementlist *e){
 	        		sprintf(buffer, "%c%c", FPS, getFPS());
 	        		break;
 	        	case RES:
-	        		sprintf(buffer, "%c%c", RES, getRES());
+	        		sprintf(buffer, "%c%c", RES, (getRES()-480)/240); //HACK Converts 480,720,1080 into 0,1,2
 	        		break;
 	        	default:
 		        	sprintf(buffer, "%c", ERR);
@@ -156,7 +159,7 @@ void* localSocket_thread(Elementlist *e){
 
 		}
 
-		close(connection_socket);
+		LOOPBREAK:close(data_socket);
 	}
 
     /* Unlink the socket. */

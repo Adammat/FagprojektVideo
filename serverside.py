@@ -9,6 +9,9 @@ import logging
 
 MAX_MESSAGE_LENGTH = 1024
 
+
+
+
 class RemoteClient(asyncore.dispatcher):
 
     """Wraps a remote client socket."""
@@ -23,6 +26,30 @@ class RemoteClient(asyncore.dispatcher):
 
     def rdymsg(self,command, value):
         return command + chr(value)
+
+    def reqServer(self,requestedVar, returnMsg):
+        #Asks for data from the c program
+        localSock.sendall((cREQ + requestedVar).encode())
+    	recived = localSock.recv(1024).decode().strip()
+
+        if recived[0] == requestedVar:
+            #Returns the OK message to the sender
+            self.say(("{" + returnMsg + "=" + str(ord(recived[1])) + "}"))
+        else:
+            #Server sent wrong message
+            self.say(("{NOT:SERVERERROR}"))
+
+    def reqServerRES(self,requestedVar, returnMsg):
+        #Asks for data from the c program
+        localSock.sendall((cREQ + requestedVar).encode())
+    	recived = localSock.recv(1024).decode().strip()
+
+        if recived[0] == requestedVar:
+            #Returns the OK message to the sender
+            self.say(("{" + returnMsg + "=" + str(RES[ord(recived[1])]) + "}"))
+        else:
+            #Server sent wrong message
+            self.say(("{NOT:SERVERERROR}"))  
 
     def handle_read(self):
         recv_message = self.recv(MAX_MESSAGE_LENGTH)
@@ -64,9 +91,9 @@ class RemoteClient(asyncore.dispatcher):
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
                    
-                elif data[0:5] == "{RES:" and (int(data[5:-1]) in {480, 720, 1080}) and data[-1:] == "}" :
+                elif data[0:5] == "{RES:" and (int(data[5:-1]) in RES) and data[-1:] == "}" :
                     res = int(data[5:-1])
-                    resindex = [480,720,1080].index(res)
+                    resindex = RES.index(res)
                         #Sends all the data to the c program
 
                     localSock.sendall(self.rdymsg(cRES,resindex).encode())
@@ -79,58 +106,25 @@ class RemoteClient(asyncore.dispatcher):
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
                 elif data == "{REQ:VCL}":
-                    
-
-                    #Asks for data from the c program
-                    localSock.sendall((cREQ+cVCL).encode())
-    		    recived = localSock.recv(1024).decode().strip()
-    
-                    if recived[0] == cVCL :
-                        #Returns the OK message to the sender
-                        self.say(("{VCL=" + str(ord(recived[1])) + "}"))
-                    else:
-                        #Server sent wrong message
-                        self.say(("{NOT:SERVERERROR}")) 
+                    self.reqServer(cVCL,"VCL")
 
                 elif data == "{REQ:FPS}":
-                    #Asks for data from the c program
-                    localSock.sendall((cREQ+cFPS).encode())
-    		    recived = localSock.recv(1024).decode().strip()
-
-                    #Returns the OK message to the sender
-                    if recived[0] == cFPS :
-                        #Returns the OK message to the sender
-                        self.say(("{FPS=" + str(ord(recived[1])) + "}"))
-                    else:
-                        #Server sent wrong message
-                        self.say(("{NOT:SERVERERROR}")) 
-
+                    self.reqServer(cFPS,"FPS")
 
                 elif data == "{REQ:RES}":
-                    
-                    #Asks for data from the c program
-                    localSock.sendall((cREQ + cRES).encode())
-    		    recived = localSock.recv(1024).decode().strip()
-
-                    if recived[0] == cRES:
-                        #Returns the OK message to the sender
-                        self.say(("{RES=" + str(ord(recived[1])) + "}"))
-                    else:
-                        #Server sent wrong message
-                        self.say(("{NOT:SERVERERROR}")) 
-    
+                    self.reqServerRES(cRES,"RES")
                 else:
                     if data[0:5] == "{FPS:" and data[-1:] == "}": 
                         #Returns the NOT message to the sender
-                        self.say(("{NOT:FPS=" + str(fps) + "}"))
+                        self.reqServer(cFPS,"NOT:FPS")
         
                     elif data[0:5] == "{VCL:" and data[-1:] == "}":
                         #Returns the NOT message to the sender
-                        self.say(("{NOT:VCL=" + str(vcl) + "}"))
+                        self.reqServer(cVCL,"NOT:VCL")
     
                     elif data[0:5] == "{RES:" and data[-1:] == "}":
                         #Returns the NOT message to the sender
-                        self.say(("{NOT:RES=" + str(res) + "}"))
+                        self.reqServerRES(cRES,"NOT:RES")
     
           	    elif data[0:5] == "{REQ:" and data[-1:] == "}":
                             #Returns the NOT message to the sender
@@ -142,16 +136,16 @@ class RemoteClient(asyncore.dispatcher):
     
             except ValueError: #Will be called upon failure of the int function call. This should happen when the value in given messages are not int's. Example {REQ:asdf}
                 if data[0:5] == "{FPS:" and data[-1:] == "}":
-                       #Returns the NOT message to the sender
-                    self.say(("{NOT:FPS=" + str(fps) + "}"))
+                    #Returns the NOT message to the sender
+                    self.reqServer(cFPS,"NOT:FPS")
     
                 elif data[0:5] == "{VCL:" and data[-1:] == "}":
                     #Returns the NOT message to the sender
-                    self.say(("{NOT:VCL=" + str(vcl) + "}"))
+                    self.reqServer(cVCL,"NOT:VCL")
     
                 elif data[0:5] == "{RES:" and data[-1:] == "}":
-                        #Returns the NOT message to the sender
-                    self.say(("{NOT:RES=" + str(res) + "}"))
+                    #Returns the NOT message to the sender
+                    self.reqServerRES(cRES,"NOT:RES")
     
                 elif data[0:5] == "{REQ:" and data[-1:] == "}":
                         #Returns the NOT message to the sender
@@ -209,6 +203,7 @@ if __name__ == "__main__":
 
     #Define commands (ENUM)
     cERR, cOK, cREQ, cVCL, cFPS, cRES = chr(0), chr(1), chr(2),chr(3),chr(4),chr(5) 
+    RES = [480,720,1080]
 
     # Create the socket (AF_UNIX is a local socket. SEQPACKET is two way communication)
     localSock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
