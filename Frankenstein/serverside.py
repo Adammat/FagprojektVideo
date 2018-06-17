@@ -197,7 +197,7 @@ class Host(asyncore.dispatcher):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
-    SOCKADDR = "/home/feynman/workspace/FagprojektVideo/9Lq7BNBnBycd6nxy.socket"
+    SOCKADDR = "pytoc.socket"
     #Initial values 
     HOST, PORT = 'localhost', 9999
 
