@@ -39,9 +39,6 @@ static gboolean bus_call (GstBus *bus, GstMessage *msg, gpointer data)
 
   return TRUE;
 }
-int vcl = 1;
-int fps = 60;
-int res = 720;
 
 int main(int argc, char* argv[]) {
   Elementlist elements;
@@ -134,36 +131,36 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-int getVCL(){
-	return vcl;
+int getVCL(Elementlist *e){
+	return e->vcl;
 }
 
-int getFPS(){
-	return fps;
+int getFPS(Elementlist *e){
+	return e->fps;
 }
 
-int getRES(){
-	return res;
+int getRES(Elementlist *e){
+	return e->height;
 }
 
-int setVCL(int vcl2,Elementlist *e){
+int setVCL(int vcl,Elementlist *e){
 
-	g_object_set (G_OBJECT (e->encoder), "quality",(int) vcl2, NULL);
-	vcl = vcl2;
-	printf("Quality has been changed: %d\n",vcl2);
+	g_object_set (G_OBJECT (e->encoder), "quality",(int) vcl, NULL);
+	e->vcl = vcl;
+	printf("Quality has been changed: %d\n",vcl);
 	return 1;
 }
 
-int setFPS(int fps2, Elementlist *e){
+int setFPS(int fps, Elementlist *e){
 
 	g_object_set (G_OBJECT (e->capsFilter), "caps",
     				   gst_caps_new_simple("video/x-raw",
                     "width", G_TYPE_INT, (e->width),
                     "height", G_TYPE_INT, (e->height),
-					"framerate",GST_TYPE_FRACTION,fps2,1,
+					"framerate",GST_TYPE_FRACTION,fps,1,
                     NULL) , NULL);
-	e->fps = fps2;
-	fps = fps2;
+	e->fps = fps;
+
 	return 1;
 }
 
@@ -176,6 +173,6 @@ int setRES(int w,int h,Elementlist *e){
 					NULL) , NULL);
 	e->width = w;
 	e->height = h;
-	res = h;
+
 	return 1;
 }

@@ -84,7 +84,7 @@ void* localSocket_thread(Elementlist *e){
 
 		for(;;) {
 
-			printf("vcl: %i, fps: %i, res %i\n", getVCL(),getFPS(),getRES());
+			printf("vcl: %i, fps: %i, res %i\n", getVCL(e),getFPS(e),getRES(e));
 			fflush(stdout);
 			/* Wait for next data packet. */
 			memset(buffer, '\0', BUFFER_SIZE);
@@ -121,13 +121,13 @@ void* localSocket_thread(Elementlist *e){
 	        case REQ:
 	        	switch(value){
 	        	case VCL:
-	        		sprintf(buffer, "%c%c", VCL, getVCL());
+	        		sprintf(buffer, "%c%c", VCL, getVCL(e));
 	        		break;
 	        	case FPS:
-	        		sprintf(buffer, "%c%c", FPS, getFPS());
+	        		sprintf(buffer, "%c%c", FPS, getFPS(e));
 	        		break;
 	        	case RES:
-	        		sprintf(buffer, "%c%c", RES, (getRES()-480)/240); //HACK Converts 480,720,1080 into 0,1,2
+	        		sprintf(buffer, "%c%c", RES, (getRES(e)-480)/240); //HACK Converts 480,720,1080 into 0,1,2
 	        		break;
 	        	default:
 		        	sprintf(buffer, "%c", ERR);

@@ -199,7 +199,7 @@ if __name__ == "__main__":
     
     SOCKADDR = "pytoc.socket"
     #Initial values 
-    HOST, PORT = 'localhost', 9999
+    HOST, PORT = 'localhost', 5050
 
     #Define commands (ENUM)
     cERR, cOK, cREQ, cVCL, cFPS, cRES = chr(0), chr(1), chr(2),chr(3),chr(4),chr(5) 
@@ -218,23 +218,8 @@ if __name__ == "__main__":
     logging.info('Creating host')
     host = Host((HOST,PORT))
     logging.info('Host Socketname: %s', host.getsockname())
-    '''logging.info('Creating clients')
-    alice = Client(('localhost', 9999), 'Alice')
-    bob = Client(('localhost', 9999), 'Bob')
-    bob.say('{FPS=20}')
-    alice.say('{REQ:FPS}')'''
     logging.info('Looping')
     asyncore.loop()
 
-''' #Code from socketserver
-    HOST, PORT = "localhost", 9999
-    
-    # Create the server, binding to localhost on port 9999
-    server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
-
-    # Activate the server; this will keep running until you
-    # interrupt the program with Ctrl-C
-    
-    server.serve_forever()'''
 
 
