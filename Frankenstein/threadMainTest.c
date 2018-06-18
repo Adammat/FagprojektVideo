@@ -163,6 +163,7 @@ int setFPS(int fps2, Elementlist *e){
 					"framerate",GST_TYPE_FRACTION,fps2,1,
                     NULL) , NULL);
 	e->fps = fps2;
+	fps = fps2;
 	return 1;
 }
 
@@ -175,5 +176,6 @@ int setRES(int w,int h,Elementlist *e){
 					NULL) , NULL);
 	e->width = w;
 	e->height = h;
+	res = h;
 	return 1;
 }
