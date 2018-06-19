@@ -48,9 +48,9 @@ int * encode(int * input, int height, int width, int block_size, int bit_depth, 
 	//Allocate memory for buffer and output
 	int buffer[pixels];
 	int *output = malloc(sizeof(int)*pixels);
-//	printf("blocks: %d, block_width: %d, block_height: %d\n", blocks, block_width, block_height);	
+//	printf("blocks: %d, block_width: %d, block_height: %d\n", blocks, block_width, block_height);
 	/*
-	Docs goes here
+
 
 
 	Calculate indecies for each pixel and save it in the  buffer
@@ -92,7 +92,7 @@ int main( int argc, const char* argv[] )
 {
 
 	FILE *myFile;
-	myFile = fopen("1_input.txt", "r");
+	myFile = fopen("input.txt", "r");
 
 	//read file into array
 	int image_size=200*200;
