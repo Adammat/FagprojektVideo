@@ -8,9 +8,9 @@ import time
 
 MAX_MESSAGE_LENGTH = 1024
 
-'''
-HOST, PORT = "localhost", 9999
-data = " ".join(sys.argv[1:])
+
+HOST, PORT = "192.162.0.3", 7171
+'''data = " ".join(sys.argv[1:])
 
 # Create a socket (SOCK_STREAM means a TCP socket)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -59,8 +59,7 @@ class Client(asyncore.dispatcher):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logging.info('Creating clients')
-    alice = Client(('localhost', 9999), 'Alice')
-    bob = Client(('localhost', 9999), 'Bob')
-    for data in sys.argv[1:]:
-		alice.say(data)
+    alice = Client((HOST,PORT), 'Alice')
+    bob = Client((HOST, PORT), 'Bob')
+    alice.say("{FPS:20}")
     asyncore.loop()

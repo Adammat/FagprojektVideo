@@ -34,7 +34,7 @@ class RemoteClient(asyncore.dispatcher):
 
         if recived[0] == requestedVar:
             #Returns the OK message to the sender
-            self.say(("{" + returnMsg + "=" + str(ord(recived[1])) + "}"))
+            self.say(("{" + returnMsg + ":" + str(ord(recived[1])) + "}"))
         else:
             #Server sent wrong message
             self.say(("{NOT:SERVERERROR}"))
@@ -46,7 +46,7 @@ class RemoteClient(asyncore.dispatcher):
 
         if recived[0] == requestedVar:
             #Returns the OK message to the sender
-            self.say(("{" + returnMsg + "=" + str(RES[ord(recived[1])]) + "}"))
+            self.say(("{" + returnMsg + ":" + str(RES[ord(recived[1])]) + "}"))
         else:
             #Server sent wrong message
             self.say(("{NOT:SERVERERROR}"))  
@@ -71,7 +71,7 @@ class RemoteClient(asyncore.dispatcher):
 
                     #Broadcast the message
                     if recived[0] == cOK :
-                        self.host.broadcast("{VCL=" + str(vcl) + "}")
+                        self.host.broadcast("{VCL:" + str(vcl) + "}")
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -86,7 +86,7 @@ class RemoteClient(asyncore.dispatcher):
 
                     if recived[0] == cOK :
                         #Broadcast the message
-                        self.host.broadcast("{FPS=" + str(fps) + "}")
+                        self.host.broadcast("{FPS:" + str(fps) + "}")
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -101,7 +101,7 @@ class RemoteClient(asyncore.dispatcher):
     
                     if recived[0] == cOK :
                         #Broadcast the message    
-                        self.host.broadcast("{RES=" + str(res) + "}")
+                        self.host.broadcast("{RES:" + str(res) + "}")
                     else:
                         #Server sent wrong message
                         self.say(("{NOT:SERVERERROR}")) 
@@ -166,7 +166,7 @@ class RemoteClient(asyncore.dispatcher):
         if len(message) > MAX_MESSAGE_LENGTH:
             raise ValueError('Message too long')
         print("Sending message: {}, to {}".format(message, self.getpeername())) 
-        self.sendall(message)
+        self.sendall(message+ '\n')
 
 class Host(asyncore.dispatcher):
 
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     
     SOCKADDR = "pytoc.socket"
     #Initial values 
-    HOST, PORT = 'localhost', 5050
+    HOST, PORT = '192.162.0.3', 7171
 
     #Define commands (ENUM)
     cERR, cOK, cREQ, cVCL, cFPS, cRES = chr(0), chr(1), chr(2),chr(3),chr(4),chr(5) 
